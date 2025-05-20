@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .desktop-only { display: none; }
+    .form-group { margin-bottom: 1rem; }
+</style>
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white text-center">
+            <h2 class="mb-0">{% if object %}Edit{% else %}Add{% endif %} Warehouse Item</h2>
+        </div>
+
+        <form method="post" class="p-4">
+            {% csrf_token %}
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.employee.label_tag }}
+                        {{ form.employee }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.device_type.label_tag }}
+                        {{ form.device_type }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.brand.label_tag }}
+                        {{ form.brand }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.model.label_tag }}
+                        {{ form.model }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.serial_number.label_tag }}
+                        {{ form.serial_number }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.aims_tag.label_tag }}
+                        {{ form.aims_tag }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.recepient_name.label_tag }}
+                        {{ form.recepient_name }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.recepient_email.label_tag }}
+                        {{ form.recepient_email }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.recepient_cell.label_tag }}
+                        {{ form.recepient_cell }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.dispatcher.label_tag }}
+                        {{ form.dispatcher }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.IT_email.label_tag }}
+                        {{ form.IT_email }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form.IT_cell.label_tag }}
+                        {{ form.IT_cell }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop Specific Fields -->
+            <div class="card mt-4 desktop-only" id="desktop-fields">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Desktop Components</h5>
+                </div>
+
+                <div class="card-body">
+                    <h6 class="text-muted">LCD Monitor</h6>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.lcd_brand.label_tag }}
+                                {{ form.lcd_brand }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.lcd_model.label_tag }}
+                                {{ form.lcd_model }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.lcd_serial.label_tag }}
+                                {{ form.lcd_serial }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.lcd_aims_tag.label_tag }}
+                                {{ form.lcd_aims_tag }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="text-muted mt-4">CPU</h6>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.cpu_brand.label_tag }}
+                                {{ form.cpu_brand }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.cpu_model.label_tag }}
+                                {{ form.cpu_model }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.cpu_serial.label_tag }}
+                                {{ form.cpu_serial }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form.cpu_aims_tag.label_tag }}
+                                {{ form.cpu_aims_tag }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success btn-lg">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleFields() {
+    const deviceType = document.querySelector('#id_device_type');
+    const desktopFields = document.getElementById('desktop-fields');
+
+    function updateFields() {
+        if (deviceType.value === 'Desktop') {
+            desktopFields.style.display = 'block';
+            document.querySelectorAll('.desktop-only input').forEach(input => input.required = true);
+        } else {
+            desktopFields.style.display = 'none';
+            document.querySelectorAll('.desktop-only input').forEach(input => input.required = false);
+        }
+    }
+
+    if (deviceType) {
+        deviceType.addEventListener('change', updateFields);
+        updateFields();  // Initial call
+    }
+}
+
+document.addEventListener('DOMContentLoaded', toggleFields);
+</script>
+{% endblock %}

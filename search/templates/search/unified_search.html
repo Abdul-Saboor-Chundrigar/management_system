@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Unified Search{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Unified Search</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form.field.label_tag }}
+                    {{ form.field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.query.label_tag }}
+                    {{ form.query }}
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary mt-4">Search</button>
+                </div>
+            </div>
+        </form>
+
+        {% if results %}
+            {% if results.exists %}
+                <h4>Employee Details</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Employee Number</th>
+                            <th>Alias</th>
+                            <th>Region</th>
+                            <th>Email</th>
+                            <th>Date Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in results %}
+                            <tr>
+                                <td>{{ employee.emp_number }}</td>
+                                <td>{{ employee.alias|default:"N/A" }}</td>
+                                <td>{{ employee.region|default:"N/A" }}</td>
+                                <td>{{ employee.email|default:"N/A" }}</td>
+                                <td>{{ employee.date_joined|date:"Y-m-d" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% for app_name, records, fields in related_data %}
+                    {% if records.exists %}
+                        <h4>{{ app_name }}</h4>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    {% for field_name, verbose_name in fields %}
+                                        <th>{{ verbose_name }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in records %}
+                                    <tr>
+                                        {% for field_name, verbose_name in fields %}
+                                            <td>{{ record|get_attr:field_name }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p class="alert alert-warning">No results found for "{{ form.cleaned_data.query }}" in {{ form.cleaned_data.field }}.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Location Details{% endblock %}
+{% block content %}
+<div class="container">
+    {% if location %}
+    <h2>Your Location</h2>
+    <div class="card bg-dark text-light">
+        <div class="card-body">
+            <p><strong>Country:</strong> {{ location.country }}</p>
+            <p><strong>City:</strong> {{ location.city }}</p>
+            <p><strong>Nearby Landmark:</strong> {{ location.nearby_landmark }}</p>
+            <p><strong>Coordinates:</strong> {{ location.latitude }}, {{ location.longitude }}</p>
+            <p><strong>Last Updated:</strong> {{ location.timestamp }}</p>
+        </div>
+    </div>
+    {% elif locations %}
+    <h2>Location Monitor (Admin)</h2>
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Country</th>
+                <th>City</th>
+                <th>Nearby Landmark</th>
+                <th>Coordinates</th>
+                <th>Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loc in locations %}
+            <tr>
+                <td>{{ loc.user.username }}</td>
+                <td>{{ loc.country }}</td>
+                <td>{{ loc.city }}</td>
+                <td>{{ loc.nearby_landmark }}</td>
+                <td>{{ loc.latitude }}, {{ loc.longitude }}</td>
+                <td>{{ loc.timestamp }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">No locations found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <a href="{% url 'employee_management:employee_list' %}" class="btn btn-primary mt-3">Back to Employees</a>
+</div>
+{% endblock %}

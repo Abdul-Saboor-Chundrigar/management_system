@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="my-4">User Location Dashboard</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Login Locations Map</h5>
+                </div>
+                <div class="card-body">
+                    <div id="map" style="height: 400px;"></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Logins with Locations</h5>
+                </div>
+                <div class="card-body">
+                    <!-- location_dashboard.html -->
+	<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>IP</th>
+            <th>City</th>
+            <th>Country Code</th>
+            <th>Coordinates</th>
+            <th>Login Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for location in locations %}
+        <tr>
+            <td>{{ location.user.username }}</td>
+            <td>{{ location.ip_address }}</td>
+            <td>{{ location.city|default:"Unknown" }}</td>
+            <td>{{ location.country_code|default:"N/A" }}</td>
+            <td>
+                {% if location.latitude %}
+                <a href="https://maps.google.com/?q={{location.latitude}},{{location.longitude}}" target="_blank">
+                    {{ location.latitude|floatformat:4 }}, {{ location.longitude|floatformat:4 }}
+                </a>
+                {% else %}
+                N/A
+                {% endif %}
+            </td>
+            <td>{{ location.login_time|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">No location data available yet</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Login Statistics by Location</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Country</th>
+                                    <th>City</th>
+                                    <th>Logins</th>
+                                    <th>% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in country_stats %}
+                                <tr>
+                                    <td>{{ stat.country }}</td>
+                                    <td>{{ stat.city }}</td>
+                                    <td>{{ stat.logins }}</td>
+                                    <td>{{ stat.percentage|floatformat:2 }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const map = L.map('map').setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+    // Custom icons
+    const loginIcon = L.icon({
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        iconSize: [25, 41]
+    });
+    
+    // Add markers with detailed popups
+    {% for loc in locations %}
+    {% if loc.latitude %}
+    L.marker([{{ loc.latitude }}, {{ loc.longitude }}], {icon: loginIcon})
+        .addTo(map)
+        .bindPopup(`
+            <b>Location:</b> {{ loc.city }}, {{ loc.country_code }}<br>
+            <b>IP:</b> {{ loc.ip_address }}<br>
+            <b>Logins:</b> {{ loc.login_count }}<br>
+            <a href="https://maps.google.com/?q={{loc.latitude}},{{loc.longitude}}" target="_blank">
+                View in Google Maps
+            </a>
+        `);
+    {% endif %}
+    {% endfor %}
+});
+</script>
+
+<style>
+    .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    #map {
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+</style>
+{% endblock %}

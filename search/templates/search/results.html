@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>
+            {% if record_type == 'asset' %}Asset
+            {% elif record_type == 'vendorescalation' %}Vendor Escalation
+            {% else %}Warehouse
+            {% endif %} Record Details
+        </h3>
+        <a href="{% url 'search:search_dashboard' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Search
+        </a>
+    </div>
+
+    {% if record %}
+    <div class="card">
+        <div class="card-body">
+            {% if record_type == 'asset' %}
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Employee Details</h5>
+                    <p><strong>Name:</strong> {{ record.employee.name }}</p>
+                    <p><strong>Emp Number:</strong> {{ record.employee.emp_number }}</p>
+                    <p><strong>Region:</strong> {{ record.region }}</p>
+                    <p><strong>Date Assigned:</strong> {{ record.date_assigned|date:"Y-m-d" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Device Information</h5>
+                    <p><strong>Type:</strong> {{ record.device_type }}</p>
+                    <p><strong>Brand/Model:</strong> {{ record.brand }} {{ record.model }}</p>
+                    <p><strong>Main Serial:</strong> {{ record.serial_number }}</p>
+                    <p><strong>AIMS Tag:</strong> {{ record.aims_tag }}</p>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5>LCD Components</h5>
+                    <p><strong>Brand/Model:</strong> {{ record.lcd_brand }} {{ record.lcd_model }}</p>
+                    <p><strong>Serial:</strong> {{ record.lcd_serial }}</p>
+                    <p><strong>AIMS Tag:</strong> {{ record.lcd_aims_tag }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>CPU Components</h5>
+                    <p><strong>Brand/Model:</strong> {{ record.cpu_brand }} {{ record.cpu_model }}</p>
+                    <p><strong>Serial:</strong> {{ record.cpu_serial }}</p>
+                    <p><strong>AIMS Tag:</strong> {{ record.cpu_aims_tag }}</p>
+                </div>
+            </div>
+
+            {% elif record_type == 'vendorescalation' %}
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Vendor Details</h5>
+                    <p><strong>Name:</strong> {{ record.vendor_name }}</p>
+                    <p><strong>Email:</strong> {{ record.vendor_email }}</p>
+                    <p><strong>Date Created:</strong> {{ record.date_created|date:"Y-m-d" }}</p>
+                    <p><strong>Status:</strong> {{ record.get_status_display }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Employee Information</h5>
+                    <p><strong>Name:</strong> {{ record.employee.name }}</p>
+                    <p><strong>Emp Number:</strong> {{ record.employee.emp_number }}</p>
+                    <p><strong>Device Type:</strong> {{ record.device_type }}</p>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5>Device Details</h5>
+                    <p><strong>Brand/Model:</strong> {{ record.brand }} {{ record.model }}</p>
+                    <p><strong>Serial:</strong> {{ record.serial_number }}</p>
+                    <p><strong>AIMS Tag:</strong> {{ record.aims_tag }}</p>
+                    <p><strong>Issue:</strong> {{ record.issue_details }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Components</h5>
+                    <p><strong>LCD Serial:</strong> {{ record.lcd_serial }}</p>
+                    <p><strong>CPU Serial:</strong> {{ record.cpu_serial }}</p>
+                    <h5 class="mt-3">Contact</h5>
+                    <p><strong>POC:</strong> {{ record.poc_name }}</p>
+                    <p><strong>Cell:</strong> {{ record.poc_cell }}</p>
+                </div>
+            </div>
+
+            {% else %} {# warehouse #}
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Assignment Details</h5>
+                    <p><strong>Employee:</strong> {{ record.employee.name }} ({{ record.employee.emp_number }})</p>
+                    <p><strong>Date Assigned:</strong> {{ record.date_assigned|date:"Y-m-d" }}</p>
+                    <p><strong>Region:</strong> {{ record.region }}</p>
+                    <p><strong>Recipient:</strong> {{ record.recipient_name }}</p>
+                    <p><strong>Recipient Contact:</strong> {{ record.recipient_email }} | {{ record.recipient_cell }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Device Information</h5>
+                    <p><strong>Type:</strong> {{ record.device_type }}</p>
+                    <p><strong>Brand/Model:</strong> {{ record.brand }} {{ record.model }}</p>
+                    <p><strong>Serial:</strong> {{ record.serial_number }}</p>
+                    <p><strong>AIMS Tag:</strong> {{ record.aims_tag }}</p>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5>LCD Components</h5>
+                    <p><strong>Brand/Model:</strong> {{ record.lcd_brand }} {{ record.lcd_model }}</p>
+                    <p><strong>Serial:</strong> {{ record.lcd_serial }}</p>
+                    <p><strong>AIMS Tag:</strong> {{ record.lcd_aims_tag }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>CPU Components</h5>
+                    <p><strong>Brand/Model:</strong> {{ record.cpu_brand }} {{ record.cpu_model }}</p>
+                    <p><strong>Serial:</strong> {{ record.cpu_serial }}</p>
+                    <p><strong>AIMS Tag:</strong> {{ record.cpu_aims_tag }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No record selected. Please select a record from the search page.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

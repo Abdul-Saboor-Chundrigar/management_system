@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% load static custom_tags %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reports Dashboard</title>
+</head>
+<body>
+<h2>Report Dashboard</h2>
+
+<form method="get" id="reportForm">
+    <label for="report_type">Select Report Type:</label>
+    <select name="report_type" id="report_type" class="form-control" onchange="document.getElementById('reportForm').submit();">
+        <option value="">-- Select Report Type --</option>
+        <option value="employee" {% if report_type == "employee" %}selected{% endif %}>Employee</option>
+        <option value="asset" {% if report_type == "asset" %}selected{% endif %}>Asset</option>
+        <option value="warehouse" {% if report_type == "warehouse" %}selected{% endif %}>Warehouse</option>
+        <option value="vendor" {% if report_type == "vendor" %}selected{% endif %}>Vendor</option>
+    </select>
+</form>
+{% if records %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                {% for header in headers %}
+                    <th>{{ header|capfirst }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                {% for header in headers %}
+                    <td>{{ record|dict_key:header }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Please select a report type to view records.</p>
+{% endif %}
+
+</body>
+</html>

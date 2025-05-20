@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>{{ mode }} Attachment</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control" id="description" name="description" value="{{ attachment.description|default_if_none:'' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="file" class="form-label">Attach File (Max 10 MB)</label>
+            <input type="file" class="form-control" id="file" name="file" {% if mode == 'Add' %}required{% endif %}>
+            {% if attachment %}
+                <small class="form-text text-muted">Current file: {{ attachment.filename }}</small>
+            {% endif %}
+        </div>
+        {% if employee %}
+            <div class="mb-3">
+                <label class="form-label">Employee</label>
+                <p>{{ employee.name }} ({{ employee.emp_number }})</p>
+            </div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">{{ mode }} Attachment</button>
+        <a href="{% url 'file_attachment:attachment_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}

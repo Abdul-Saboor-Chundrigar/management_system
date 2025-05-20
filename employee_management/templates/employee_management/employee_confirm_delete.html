@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h5>Confirm Delete</h5>
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete employee <strong>{{ employee.name }}</strong> ({{ employee.emp_number }})?</p>
+            <p class="text-danger">This action cannot be undone.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <a href="{% url 'employee_management:employee_detail' employee.pk %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

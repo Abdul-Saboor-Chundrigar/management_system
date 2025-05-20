@@ -1,0 +1,252 @@
+{% load static %}
+{% load permission_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Management Information System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e2a44, #2c3e50);
+            color: #e0e0e0;
+            padding-top: 60px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .navbar {
+            background: #2c3e50;
+            border-bottom: 2px solid #34495e;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .navbar-brand {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #ffffff !important;
+            text-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+            letter-spacing: 0.5px;
+        }
+        .sidebar {
+            height: calc(100vh - 60px);
+            position: fixed;
+            left: 0;
+            top: 50px;
+            width: 220px;
+            background: linear-gradient(#34495e, #4b6cb7);
+            border-right: 2px solid #2c3e50;
+            padding: 15px 10px;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #2c3e50;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #81ecec;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #3498db;
+        }
+        .sidebar h5 {
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        .sidebar a {
+            color: #81ecec;
+            font-weight: 400;
+            text-decoration: none;
+            display: block;
+            padding: 8px 10px;
+            margin: 3px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 3px rgba(0,0,0,0.2);
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+        }
+        .sidebar a:hover {
+            background: #2c3e50;
+            color: #ffffff;
+            transform: translateX(5px);
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 20px;
+        }
+        .welcome-text {
+            font-weight: 400;
+            font-size: 0.95rem;
+            color: #dfe6e9;
+        }
+        .logout-btn {
+            background: #e74c3c;
+            border: none;
+            color: #ffffff;
+            padding: 6px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        .alert {
+            background: #34495e;
+            color: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            font-weight: 400;
+        }
+        .sidebar-toggle {
+            display: none;
+            background: #3498db;
+            border: none;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                width: 220px;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+            .welcome-text {
+                font-size: 0.85rem;
+            }
+            .logout-btn {
+                padding: 5px 12px;
+                font-size: 0.85rem;
+            }
+            .sidebar-toggle {
+                display: inline-block;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+            <button class="sidebar-toggle me-2" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <a class="navbar-brand mx-auto" href="#">Management Information System</a>
+            {% if user.is_authenticated %}
+            <div class="d-flex align-items-center">
+                <span class="welcome-text me-2">Welcome, {{ user.username }}</span>
+                <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            {% if user.is_authenticated %}
+            <div class="sidebar" id="sidebar">
+                {% with perms=user.app_permissions.all %}
+                    {% for perm in perms %}
+                        {% if perm.permission_level in 'read,write,admin' %}
+                            {% if perm.app_name == 'administration_management' %}
+                                <a href="{% url 'administration_management:manage_users' %}"><i class="bi bi-shield-lock mr-2"></i>Administration</a>
+                            {% elif perm.app_name == 'employee_management' %}
+                                <a href="{% url 'employee_management:employee_list' %}"><i class="bi bi-people me-2"></i>Employees</a>
+                            {% elif perm.app_name == 'asset_management' %}
+                                <a href="{% url 'asset_management:asset_list' %}"><i class="bi bi-laptop me-2"></i>Assets</a>
+                            {% elif perm.app_name == 'warehouse_management' %}
+                                <a href="{% url 'warehouse_management:warehouse_list' %}"><i class="bi bi-box-seam me-2"></i>Warehouse</a>
+                            {% elif perm.app_name == 'vendorescalation_management' %}
+                                <a href="{% url 'vendorescalation_management:vendor_list' %}"><i class="bi bi-building me-2"></i>Vendor Escalation</a>
+                            {% elif perm.app_name == 'report_generation' %}
+                                <a href="{% url 'report_generation:reports' %}"><i class="bi bi-file-earmark-bar-graph me-2"></i>Reports</a>
+                            {% elif perm.app_name == 'search' %}
+                                <a href="{% url 'search:unified_search' %}"><i class="bi bi-file-earmark-bar-graph me-2"></i>Unified Search</a>
+                            {% elif perm.app_name == 'file_management' %}
+                                <a href="{% url 'file_attachment:attachment_list' %}"><i class="bi bi-file-earmark-arrow-up me-2"></i>Attachments</a>
+                            {% elif perm.app_name == 'email_management' %}
+                                <a href="{% url 'email_management:email_log_list' %}"><i class="bi bi-envelope me-2"></i>Email Logs</a>
+                            {% elif perm.app_name == 'user_activity' %}
+                                <a href="{% url 'user_activity:activity_dashboard' %}"><i class="bi bi-person-lines-fill me-2"></i>Activities</a>
+                            {% elif perm.app_name == 'scan_hardware' %}
+                                <a href="{% url 'scan_hardware:scan' %}"><i class="bi bi-cpu mr-2"></i>Hardware Scan</a>
+			    {% elif perm.app_name == 'custom_email_client' %}
+                                <a href="{% url 'custom_email_client:email_list' %}"><i class="bi bi-envelope me-2"></i>Email Client</a>
+                            {% elif perm.app_name == 'live' %}
+                                <a href="{% url 'live:admin_location_monitor' %}"><i class="bi bi-geo-alt me-2"></i>Location Monitor</a>
+                                <a href="{% url 'live:admin_location_monitor' %}"><i class="bi bi-geo-fill me-2"></i>My Location</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            </div>
+            {% endif %}
+
+            <main class="{% if user.is_authenticated %}main-content{% else %}col-md-12{% endif %}">
+                {% if messages %}
+                <div class="mt-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    console.log('Coords:', position.coords.latitude, position.coords.longitude);
+                    fetch("/location_details/update/", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: `latitude=${position.coords.latitude}&longitude=${position.coords.longitude}`
+                    }).catch(() => {});
+                },
+                error => console.error('Geolocation error:', error)
+            );
+        }
+    </script>
+    {% block extra_js %}
+    <script>
+        const UPDATE_URL = "{% url 'live:update_location' %}";
+    </script>
+    {% endblock %}
+</body>
+</html>

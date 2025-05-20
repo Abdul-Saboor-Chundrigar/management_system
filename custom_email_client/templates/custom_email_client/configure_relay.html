@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-gray-900">Configure Email Relay</h2>
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="host" class="form-label text-gray-900">SMTP/IMAP Host</label>
+                    <input type="text" name="host" value="{{ form.host.value|default:'smtp.example.com' }}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="port" class="form-label text-gray-900">Port</label>
+                    <input type="number" name="port" value="{{ form.port.value|default:587 }}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label text-gray-900">Username</label>
+                    <input type="text" name="username" value="{{ form.username.value|default:'' }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label text-gray-900">Password</label>
+                    <input type="password" name="password" value="{{ form.password.value|default:'' }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="use_tls" class="form-label text-gray-900">Use TLS</label>
+                    <input type="checkbox" name="use_tls" {% if form.use_tls.value %}checked{% endif %} class="form-check-input">
+                </div>
+                <div class="mb-3">
+                    <label for="default_from_email" class="form-label text-gray-900">Default From Email</label>
+                    <input type="email" name="default_from_email" value="{{ form.default_from_email.value|default:'no-reply@example.com' }}" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Configuration</button>
+                <a href="{% url 'custom_email_client:email_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

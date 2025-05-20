@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Admin Location Monitor{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Admin Location Monitor</h2>
+    {% if user.is_staff %}
+        {% if locations %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Timestamp</th>
+                        <th>City</th>
+                        <th>Country</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for location in locations %}
+                        <tr>
+                            <td>{{ location.user.username }}</td>
+                            <td>{{ location.timestamp }}</td>
+                            <td>{{ location.city|default:"N/A" }}</td>
+                            <td>{{ location.country|default:"N/A" }}</td>
+                            <td>{{ location.latitude }}</td>
+                            <td>{{ location.longitude }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No location data available.</p>
+        {% endif %}
+    {% else %}
+        <p>You do not have permission to view this page.</p>
+    {% endif %}
+</div>
+{% endblock %}

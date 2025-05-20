@@ -1,0 +1,28 @@
+{% extends 'administration_management/admin_base.html' %}
+
+{% block extra_css %}
+<style>
+    .btn-primary, .btn-secondary { box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4" data-aos="fade-up">
+    <h2 class="text-gray-900">Delete User</h2>
+    <div class="card" data-aos="zoom-in">
+        <div class="card-body">
+            <p>Are you sure you want to delete user <strong>{{ user.username }}</strong>?</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+                <a href="{% url 'administration_management:manage_users' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% block extra_js %}
+<script>
+    AOS.init();
+</script>
+{% endblock %}
+{% endblock %}

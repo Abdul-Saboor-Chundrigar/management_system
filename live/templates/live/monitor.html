@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% load static %}
+<script>
+const UPDATE_URL = "{% url 'live:update_location' %}";  // Define at top of template
+
+// Later in your code:
+fetch(UPDATE_URL, {  // Use the variable
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: `latitude=${position.coords.latitude}&longitude=${position.coords.longitude}`
+}).catch(() => {});
+</script>
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between">
+                    <h5>Live User Locations</h5>
+                    <div>
+                        <button id="refresh-btn" class="btn btn-sm btn-primary">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+<div class="dropdown">
+  <button class="btn btn-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown">
+    <i class="fas fa-download"></i> Export
+  </button>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="{% url 'live:export_csv' %}">CSV Format</a></li>
+    <li><a class="dropdown-item" href="{% url 'live:export_pdf' %}">PDF Format</a></li>
+    <li><a class="dropdown-item" href="{% url 'live:export_doc' %}">Word Format</a></li>
+  </ul>
+</div>
+
+                        <button id="cleanup-btn" class="btn btn-sm btn-danger ml-2">
+                            <i class="fas fa-trash"></i> Clean Old
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="map" style="height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Current Sessions</h5>
+                </div>
+                <div class="card-body p-0">
+<!-- live/templates/live/monitor.html -->
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Location Details</th>
+            <th>Coordinates</th>
+            <th>Last Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for loc in user_locations %}
+        <tr class="{% if loc.city == 'Unknown' %}table-warning{% endif %}">
+            <td>{{ loc.user.username }}</td>
+            <td>
+                <div class="d-flex flex-column">
+                    <strong>
+                        {% if loc.city != 'Unknown' %}
+                            {{ loc.city }}, {{ loc.country }}
+                        {% else %}
+                            <span class="text-danger">Locating...</span>
+                        {% endif %}
+                    </strong>
+                    <small class="text-muted">
+                        {{ loc.nearby_landmark|default:"Location details pending" }}
+                    </small>
+                    <small class="text-info">
+                        {% if loc.ip == '127.0.0.1' %}
+                            <i class="fas fa-laptop-code"></i> Local Development
+                        {% else %}
+                            <i class="fas fa-globe"></i> {{ loc.ip }}
+                        {% endif %}
+                    </small>
+                </div>
+            </td>
+            <td>
+                {{ loc.latitude|floatformat:4 }}, {{ loc.longitude|floatformat:4 }}
+            </td>
+            <td class="time-ago" data-timestamp="{{ loc.timestamp|date:'c' }}">
+                {{ loc.timestamp|timesince }} ago
+            </td>
+<td>
+  <div class="btn-group btn-group-sm">
+    <button class="btn btn-outline-danger delete-btn" 
+            data-id="{{ loc.id }}"
+            title="Delete Record">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+    <button class="btn btn-outline-primary view-btn"
+            data-lat="{{ loc.latitude }}"
+            data-lng="{{ loc.longitude }}"
+            title="View on Map">
+      <i class="fas fa-map-marked-alt"></i>
+    </button>
+    <button class="btn btn-outline-secondary info-btn"
+            data-location="{{ loc.id }}"
+            title="Details">
+      <i class="fas fa-info-circle"></i>
+    </button>
+  </div>
+</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center py-4">
+                <i class="fas fa-map-marker-slash fa-2x text-muted mb-2"></i>
+                <p>No active sessions found</p>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// Initialize map
+const map = L.map('map').setView([24.8607, 67.0011], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+// Add markers
+document.querySelectorAll('tbody tr').forEach(row => {
+    const marker = L.marker([row.dataset.lat, row.dataset.lng])
+        .addTo(map)
+        .bindPopup(row.cells[0].innerText);
+    
+    row.addEventListener('click', () => {
+        map.setView([row.dataset.lat, row.dataset.lng], 15);
+        marker.openPopup();
+    });
+});
+
+// Button actions
+document.getElementById('refresh-btn').addEventListener('click', () => {
+    fetch("{% url 'live:refresh_locations' %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    }).then(() => location.reload());
+});
+
+document.getElementById('export-btn').addEventListener('click', () => {
+    window.location.href = "{% url 'live:export_locations' %}";
+});
+
+document.getElementById('cleanup-btn').addEventListener('click', () => {
+    if (confirm('Delete records older than 30 days?')) {
+        fetch("{% url 'live:cleanup_locations' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        }).then(() => location.reload());
+    }
+});
+
+document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        if (confirm('Delete this location record?')) {
+            fetch(`/location_details/delete/${this.dataset.id}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            }).then(() => this.closest('tr').remove());
+        }
+    });
+});
+
+// Update timestamps every minute
+function updateTimestamps() {
+    document.querySelectorAll('.time-ago').forEach(el => {
+        const seconds = Math.floor((new Date() - new Date(el.dataset.timestamp)) / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        el.textContent = hours > 0 ? `${hours}h ago` : `${minutes}m ago`;
+    });
+}
+setInterval(updateTimestamps, 60000);
+
+// Map view button
+document.querySelectorAll('.view-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const lat = parseFloat(this.dataset.lat);
+    const lng = parseFloat(this.dataset.lng);
+    map.setView([lat, lng], 15);
+    
+    // Highlight marker if exists
+    markers.forEach(marker => {
+      if (marker.getLatLng().lat === lat && marker.getLatLng().lng === lng) {
+        marker.openPopup();
+      }
+    });
+  });
+});
+
+// Delete button
+document.querySelectorAll('.delete-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    if (confirm('Delete this location record?')) {
+      fetch(`/location_details/delete/${this.dataset.id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+      }).then(response => {
+        if (response.ok) this.closest('tr').remove();
+      });
+    }
+  });
+});
+
+// Info button
+document.querySelectorAll('.info-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const locationId = this.dataset.location;
+    // Implement your detail view logic here
+    console.log('Showing details for location:', locationId);
+  });
+});
+
+</script>
+{% endblock %}

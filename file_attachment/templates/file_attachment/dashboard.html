@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Attachments Dashboard</h2>
+    <h3>Add New Attachment</h3>
+    <form method="GET" action="{% url 'file_attachment:add_attachment' 'placeholder' 0 %}" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="app_name" class="form-label">App</label>
+                <select name="app_name" id="app_name" class="form-control" required>
+                    <option value="employee_management">Employees</option>
+                    <option value="asset_management">Assets</option>
+                    <option value="warehouse_management">Warehouses</option>
+                    <option value="vendorescalation_management">Vendors</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="record_id" class="form-label">Record ID</label>
+                <input type="number" name="record_id" id="record_id" class="form-control" required>
+            </div>
+            <div class="col-md-4 align-self-end">
+                <button type="submit" class="btn btn-primary">Go to Add Attachment</button>
+            </div>
+        </div>
+    </form>
+    <h3>Existing Attachments</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Description</th>
+                <th>App</th>
+                <th>Record ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attachment in attachments %}
+                <tr>
+                    <td>{{ attachment.id }}</td>
+                    <td>{{ attachment.filename }}</td>
+                    <td>{{ attachment.description }}</td>
+                    <td>{{ attachment.app_name }}</td>
+                    <td>{{ attachment.record_id }}</td>
+                    <td>
+                        <a href="{% url 'file_attachment:download_attachment' attachment.id %}" class="btn btn-sm btn-success">Download</a>
+                        <a href="{% url 'file_attachment:edit_attachment' attachment.id %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'file_attachment:delete_attachment' attachment.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

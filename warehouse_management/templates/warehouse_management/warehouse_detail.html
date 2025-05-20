@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Warehouse Item Details</h5>
+            <div>
+                <a href="{% url 'warehouse_management:warehouse_update' warehouse.pk %}" 
+                   class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Basic Information</h6>
+                    <p><strong>Device Type:</strong> {{ warehouse.device_type }}</p>
+                    <p><strong>Brand:</strong> {{ warehouse.brand }}</p>
+                    <p><strong>Model:</strong> {{ warehouse.model }}</p>
+                    <p><strong>Serial #:</strong> {{ warehouse.serial_number }}</p>
+                    <p><strong>AIMS Tag:</strong> {{ warehouse.aims_tag }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Assignment Information</h6>
+                    <p><strong>Employee:</strong>
+                        {% if warehouse.employee %}
+                            {{ warehouse.employee.name }} ({{ warehouse.employee.emp_number }})
+                        {% else %}
+                            Unassigned
+                        {% endif %}
+                    </p>
+                    <p><strong>Date Assigned:</strong> {{ warehouse.date_assigned|date:"Y-m-d" }}</p>
+                </div>
+            </div>
+
+            {% if warehouse.device_type.name == "Desktop" %}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h6>Desktop Components</h6>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>LCD Monitor:</strong>
+                        {% if warehouse.lcd_component %}
+                            {{ warehouse.lcd_component.name }} ({{ warehouse.lcd_component.device_type }})
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>CPU:</strong>
+                        {% if warehouse.cpu_component %}
+                            {{ warehouse.cpu_component.name }} ({{ warehouse.cpu_component.device_type }})
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <a href="{% url 'warehouse_management:warehouse_list' %}" class="btn btn-secondary mt-3">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Live Location Dashboard</h2>
+    {% if user.is_authenticated %}
+        <div id="location-status" class="alert" role="alert"></div>
+        <button id="track-location" class="btn btn-primary mb-3">Track Live Location</button>
+        <h3>Your Locations</h3>
+        {% if locations %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>City</th>
+                        <th>Country</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for location in locations %}
+                        <tr>
+                            <td>{{ location.timestamp }}</td>
+                            <td>{{ location.city|default:"N/A" }}</td>
+                            <td>{{ location.country|default:"N/A" }}</td>
+                            <td>{{ location.latitude }}</td>
+                            <td>{{ location.longitude }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No location data available. Click "Track Live Location" to start tracking.</p>
+        {% endif %}
+    {% else %}
+        <p>Please <a href="{% url 'login' %}">log in</a> to track your live location.</p>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('track-location')?.addEventListener('click', function() {
+    const statusDiv = document.getElementById('location-status');
+    if (!navigator.geolocation) {
+        statusDiv.className = 'alert alert-danger';
+        statusDiv.textContent = 'Geolocation is not supported by your browser.';
+        return;
+    }
+
+    statusDiv.className = 'alert alert-info';
+    statusDiv.textContent = 'Fetching your location...';
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Send location to server
+            fetch("{% url 'update_location' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `latitude=${latitude}&longitude=${longitude}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    statusDiv.className = 'alert alert-success';
+                    statusDiv.textContent = `Location saved: ${data.city}, ${data.country} at ${data.timestamp}`;
+                    // Reload page to update table
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.textContent = `Error: ${data.message}`;
+                }
+            })
+            .catch(error => {
+                statusDiv.className = 'alert alert-danger';
+                statusDiv.textContent = `Error: ${error.message}`;
+            });
+        },
+        function(error) {
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.textContent = `Error: ${error.message}`;
+        }
+    );
+});
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+<!-- templates/reports/index.html -->
+<h1>Reports Home</h1>
+
+<form method="get" action="{% url 'report_view' %}">
+    <input type="hidden" name="report_type" value="asset">
+    <input type="hidden" name="export_format" value="html">
+    <button type="submit" name="action" value="view">View Report</button>
+    <button type="submit" name="action" value="export">Export Report</button>
+</form>

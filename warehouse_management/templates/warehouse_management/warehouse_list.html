@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load permission_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-gray-900">Warehouse Items</h2>
+        {% with perm=request.user.app_permissions|filter:'warehouse_management' %}
+            {% if perm and perm.permission_level in 'write,admin' %}
+                <a href="{% url 'warehouse_management:warehouse_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Add Item
+                </a>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Device Type</th>
+                            <th>Brand/Model</th>
+                            <th>Serial</th>
+                            <th>AIMS Tag</th>
+                            <th>Assigned To</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in warehouse_items %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.device_type }}</td>
+                            <td>{{ item.brand }} {{ item.model }}</td>
+                            <td>{{ item.serial_number }}</td>
+                            <td>{{ item.aims_tag }}</td>
+                            <td>
+                                {% if item.employee %}
+                                    {{ item.employee.name }} ({{ item.employee.emp_number }})
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'warehouse_management:warehouse_detail' item.pk %}"
+                                       class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% with perm=request.user.app_permissions|filter:'warehouse_management' %}
+                                        {% if perm and perm.permission_level in 'write,admin' %}
+                                            <a href="{% url 'warehouse_management:warehouse_update' item.pk %}"
+                                               class="btn btn-sm btn-warning">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="{% url 'warehouse_management:warehouse_delete' item.pk %}"
+                                               class="btn btn-sm btn-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No warehouse items found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: desktop-management
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn desktop_management.wsgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: desktop_management.settings
+      - key: SECRET_KEY
+        value: change-this-in-render-dashboard
+      - key: DEBUG
+        value: 'False'

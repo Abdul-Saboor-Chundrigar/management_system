@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Verify 2FA Code</h2>
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="token" placeholder="Enter 6-digit code" required>
+    <button type="submit" class="btn btn-primary">Verify</button>
+</form>
+{% endblock %}

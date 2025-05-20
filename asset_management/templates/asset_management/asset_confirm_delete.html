@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5>Confirm Asset Deletion</h5>
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete this asset?</p>
+            
+            <div class="alert alert-warning">
+                <h6>Asset Details:</h6>
+                <ul class="mb-0">
+                    <li><strong>Device Type:</strong> {{ asset.device_type }}</li>
+                    <li><strong>Brand/Model:</strong> {{ asset.brand }} {{ asset.model }}</li>
+                    <li><strong>Serial #:</strong> {{ asset.serial_number }}</li>
+                    
+		    {% if asset.device_type == "Desktop" %}
+		    <li><strong>Components:</strong> LCD: {{ asset.lcd_serial }}, CPU: {{ asset.cpu_serial }}</li>
+		    {% endif %}
+
+		    <li><strong>AIMS Tag:</strong> {{ asset.aims_tag }}</li>
+                    {% if asset.employee %}
+                    <li><strong>Assigned to:</strong> {{ asset.employee.name }} ({{ asset.employee.emp_number }})</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="alert alert-danger">
+                <h6><i class="bi bi-exclamation-triangle-fill"></i> Warning!</h6>
+                <p class="mb-0">This will permanently delete all records of this asset including:</p>
+                <ul>
+                    <li>All associated hardware components</li>
+                    <li>Assignment history</li>
+                    <li>Maintenance records</li>
+                </ul>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <a href="{% url 'asset_management:asset_detail' asset.pk %}" class="btn btn-secondary me-md-2">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Confirm Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

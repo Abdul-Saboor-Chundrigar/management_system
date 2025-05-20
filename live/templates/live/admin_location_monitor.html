@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% block title %}Location Monitor{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Location Monitor</h2>
+    {% if user.is_staff %}
+        <div class="mb-3">
+            <button id="refresh-btn" class="btn btn-primary">Refresh Locations (9 AM - 6 PM)</button>
+            <button id="record-table-btn" class="btn btn-secondary">Record Table</button>
+        </div>
+        <div id="map" style="height: 300px; margin-bottom: 20px;"></div>
+        <h3>All Locations</h3>
+        <table class="table table-striped" id="location-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>City</th>
+                    <th>Country</th>
+                    <th>Nearby Landmark</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody id="location-table-body">
+                {% for location in locations %}
+                    <tr>
+                        <td>{{ location.user.username }}</td>
+                        <td>{{ location.city|default:"N/A" }}</td>
+                        <td>{{ location.country|default:"N/A" }}</td>
+                        <td>{{ location.nearby_landmark|default:"N/A" }}</td>
+                        <td>{{ location.latitude }}</td>
+                        <td>{{ location.longitude }}</td>
+                        <td>{{ location.timestamp }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7">No locations recorded.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Monthly Records</h3>
+        <div class="mb-3">
+            <label for="month-selector">Select Month:</label>
+            <select id="month-selector" class="form-select d-inline w-auto">
+                {% for year in "2024 2025" %}
+                    {% for month in "1 2 3 4 5 6 7 8 9 10 11 12" %}
+                        <option value="{{ year }}-{{ month }}"
+                            {% if year == "2025" and month == "5" %}selected{% endif %}>
+                            {{ year }}-{{ month|add:"0"|slice:":2" }}
+                        </option>
+                    {% endfor %}
+                {% endfor %}
+            </select>
+            <label for="export-format" class="ms-2">Export Format:</label>
+            <select id="export-format" class="form-select d-inline w-auto">
+                <option value="pdf">PDF</option>
+                <option value="csv">CSV</option>
+            </select>
+            <button id="export-btn" class="btn btn-success ms-2">Export</button>
+            <button id="delete-btn" class="btn btn-danger ms-2">Delete</button>
+        </div>
+        <div id="monthly-error" class="alert alert-danger d-none"></div>
+        <table class="table table-striped" id="monthly-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>City</th>
+                    <th>Country</th>
+                    <th>Nearby Landmark</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody id="monthly-table-body">
+                <tr>
+                    <td colspan="7">Select a month and click "Record Table" to view records.</td>
+                </tr>
+            </tbody>
+        </table>
+    {% else %}
+        <p>Access denied.</p>
+    {% endif %}
+</div>
+
+{% if user.is_staff %}
+<script>
+    let map = L.map('map').setView([24.8607, 67.0011], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    let markers = [];
+
+    function updateMapAndTable(locations, tableBodyId) {
+        // Clear existing markers
+        markers.forEach(marker => marker.remove());
+        markers = [];
+
+        // Update table
+        const tbody = document.getElementById(tableBodyId);
+        tbody.innerHTML = '';
+        if (locations.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7">No locations recorded.</td></tr>`;
+            return;
+        }
+        locations.forEach(loc => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${loc.username}</td>
+                <td>${loc.city}</td>
+                <td>${loc.country}</td>
+                <td>${loc.nearby_landmark}</td>
+                <td>${loc.latitude}</td>
+                <td>${loc.longitude}</td>
+                <td>${loc.timestamp}</td>
+            `;
+            tbody.appendChild(row);
+
+            // Add marker
+            const marker = L.marker([loc.latitude, loc.longitude])
+                .addTo(map)
+                .bindPopup(`${loc.username}: ${loc.city}<br>Nearby: ${loc.nearby_landmark}`);
+            markers.push(marker);
+        });
+
+        // Fit map to bounds
+        const bounds = locations.map(loc => [loc.latitude, loc.longitude]);
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
+    }
+
+    // Initial map setup
+    {% for location in locations %}
+        const marker = L.marker([{{ location.latitude }}, {{ location.longitude }}])
+            .addTo(map)
+            .bindPopup("{{ location.user.username }}: {{ location.city|default:'N/A' }}<br>Nearby: {{ location.nearby_landmark|default:'N/A' }}");
+        markers.push(marker);
+    {% endfor %}
+    const bounds = [{% for location in locations %}[{{ location.latitude }}, {{ location.longitude }}],{% endfor %}];
+    if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [50, 50] });
+    }
+
+    // Refresh button handler
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+        fetch("{% url 'live:refresh_locations' %}", {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (data.locations) {
+                updateMapAndTable(data.locations, 'location-table-body');
+            }
+        })
+        .catch(error => console.error('Error refreshing locations:', error));
+    });
+
+    // Record Table button handler
+    document.getElementById('record-table-btn').addEventListener('click', () => {
+        const [year, month] = document.getElementById('month-selector').value.split('-');
+        const errorDiv = document.getElementById('monthly-error');
+        errorDiv.classList.add('d-none');
+        console.log(`Fetching monthly records for ${year}-${month}`);
+        
+        fetch(`{% url 'live:monthly_records' %}?year=${year}&month=${month}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Monthly records data:', data);
+            if (data.status === 'success' && data.locations) {
+                updateMapAndTable(data.locations, 'monthly-table-body');
+            } else {
+                errorDiv.textContent = data.message || 'No records found for the selected month.';
+                errorDiv.classList.remove('d-none');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching monthly records:', error);
+            errorDiv.textContent = `Error: ${error.message}`;
+            errorDiv.classList.remove('d-none');
+        });
+    });
+
+    // Export button handler
+    document.getElementById('export-btn').addEventListener('click', () => {
+        const [year, month] = document.getElementById('month-selector').value.split('-');
+        const format = document.getElementById('export-format').value;
+        if (confirm(`Export records for ${year}-${month.padStart(2, '0')} as ${format.toUpperCase()}?`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url 'live:export_monthly_records' %}';
+            
+            const fields = {
+                year: year,
+                month: month,
+                format: format,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            };
+            
+            for (const [key, value] of Object.entries(fields)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+    });
+
+    // Delete button handler
+    document.getElementById('delete-btn').addEventListener('click', () => {
+        const [year, month] = document.getElementById('month-selector').value.split('-');
+        if (confirm(`Delete records for ${year}-${month.padStart(2, '0')}? This cannot be undone.`)) {
+            fetch("{% url 'live:delete_monthly_records' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `year=${year}&month=${month}`
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(`Deleted ${data.deleted} records`);
+                    document.getElementById('monthly-table-body').innerHTML = `<tr><td colspan="7">No locations recorded.</td></tr>`;
+                } else {
+                    alert(`Delete failed: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                alert(`Delete failed: ${error.message}`);
+            });
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

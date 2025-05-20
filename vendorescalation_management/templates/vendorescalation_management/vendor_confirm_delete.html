@@ -1,0 +1,32 @@
+<!-- vendorescalation_management/templates/vendorescalation_management/vendor_confirm_delete.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h5>Confirm Delete</h5>
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete vendor <strong>{{ vendor.vendor_name }}</strong>?</p>
+
+            <!-- Additional Vendor Details -->
+            <div class="mb-3">
+                <p><strong>Contact:</strong> {{ vendor.contact_person }}</p>
+                <p><strong>Service Type:</strong> {{ vendor.service_type }}</p>
+                <p><strong>Active Escalations:</strong> {{ vendor.escalation_set.count }}</p>
+            </div>
+
+            <p class="text-danger">This will permanently remove all vendor records and related escalations.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <a href="{% url 'vendorescalation_management:vendor_detail' vendor.pk %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

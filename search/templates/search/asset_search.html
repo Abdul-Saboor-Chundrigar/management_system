@@ -1,0 +1,29 @@
+<h2>Asset Search</h2>
+<form method="get">
+    <select name="search_field" required>
+        <option value="">Select search field</option>
+        <option value="date_assigned">Date Assigned</option>
+        <option value="serial">Serial</option>
+        <option value="aims_tag">AIMS Tag</option>
+        <option value="lcd_serial">LCD Serial</option>
+        <option value="cpu_serial">CPU Serial</option>
+    </select>
+    
+    <input type="text" name="search_value" placeholder="Enter value" required>
+    <button type="submit">Search</button>
+</form>
+
+{% if messages %}
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+{% if record %}
+<table>
+    <tr><th>ID:</th><td>{{ record.id }}</td></tr>
+    <tr><th>Serial:</th><td>{{ record.serial }}</td></tr>
+    <tr><th>AIMS Tag:</th><td>{{ record.aims_tag }}</td></tr>
+    <!-- Add other fields as needed -->
+</table>
+{% endif %}

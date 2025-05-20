@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #1e2a44, #2c3e50);
+        color: #e0e0e0;
+    }
+
+    .full-height-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+    }
+
+    .login-container {
+        background: #34495e;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .login-container h2 {
+        margin-bottom: 1.5rem;
+        color: #ffffff;
+        font-weight: 500;
+    }
+
+    .form-control {
+        background: #2c3e50;
+        border: 1px solid #4b6cb7;
+        color: #e0e0e0;
+        border-radius: 8px;
+        width: 100%;
+        padding: 0.5rem;
+    }
+
+    .form-control:focus {
+        background: #2c3e50;
+        border-color: #81ecec;
+        color: #e0e0e0;
+        box-shadow: 0 0 5px rgba(129, 236, 236, 0.5);
+        outline: none;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 0.6rem;
+        margin-top: 1rem;
+        width: 100%;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+        transform: scale(1.05);
+    }
+
+    .alert {
+        background: #e74c3c;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 400;
+        padding: 0.5rem 1rem;
+        margin-bottom: 1rem;
+    }
+
+    a {
+        color: #81ecec;
+        display: inline-block;
+        margin: 0.5rem 0;
+    }
+</style>
+
+<div class="full-height-container">
+    <div class="login-container">
+        <h2>Login</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% if wizard.form.forms %}
+                {{ wizard.management_form }}
+                {{ wizard.form.management_form }}
+                {% for form in wizard.form.forms %}
+                    {{ form.as_p }}
+                {% endfor %}
+            {% else %}
+                {{ wizard.management_form }}
+                {{ wizard.form.as_p }}
+            {% endif %}
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+
+        {% if wizard.steps.prev %}
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="wizard_goto_step" value="{{ wizard.steps.prev }}">
+                <button type="submit" class="btn btn-link">Back</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+<!-- templates/search_dashboard.html -->
+<div class="search-dashboard">
+    <div class="search-tabs">
+        <button class="tab-button active" data-target="asset-search">Asset</button>
+        <button class="tab-button" data-target="vendor-search">Vendor</button>
+        <button class="tab-button" data-target="warehouse-search">Warehouse</button>
+    </div>
+
+    <div class="search-forms">
+        <!-- Asset Search Form -->
+        <div id="asset-search" class="search-form active">
+            <form action="{% url 'asset_search' %}" method="get">
+                <div class="form-group">
+                    <select name="search_field" class="form-control" required>
+                        <option value="">-- Select Field --</option>
+                        <option value="date_assigned">Date Assigned</option>
+                        <option value="serial">Serial</option>
+                        <option value="aims_tag">AIMS Tag</option>
+                        <option value="lcd_serial">LCD Serial</option>
+                        <option value="cpu_serial">CPU Serial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="search_value" class="form-control" placeholder="Enter value" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Search Asset</button>
+            </form>
+        </div>
+
+        <!-- Vendor Search Form -->
+        <div id="vendor-search" class="search-form">
+            <form action="{% url 'vendor_search' %}" method="get">
+                <div class="form-group">
+                    <select name="search_field" class="form-control" required>
+                        <option value="">-- Select Field --</option>
+                        <option value="date_created">Date Created</option>
+                        <option value="vendor_email">Vendor Email</option>
+                        <option value="serial">Serial</option>
+                        <option value="aims_tag">AIMS Tag</option>
+                        <option value="lcd_serial">LCD Serial</option>
+                        <option value="cpu_serial">CPU Serial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="search_value" class="form-control" placeholder="Enter value" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Search Vendor</button>
+            </form>
+        </div>
+
+        <!-- Warehouse Search Form -->
+        <div id="warehouse-search" class="search-form">
+            <form action="{% url 'warehouse_search' %}" method="get">
+                <div class="form-group">
+                    <select name="search_field" class="form-control" required>
+                        <option value="">-- Select Field --</option>
+                        <option value="date_assigned">Date Assigned</option>
+                        <option value="serial">Serial</option>
+                        <option value="aims_tag">AIMS Tag</option>
+                        <option value="lcd_serial">LCD Serial</option>
+                        <option value="cpu_serial">CPU Serial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="search_value" class="form-control" placeholder="Enter value" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Search Warehouse</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.search-dashboard {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-tabs {
+    display: flex;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 15px;
+}
+
+.tab-button {
+    padding: 8px 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    color: #6c757d;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-button.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+.search-form {
+    display: none;
+}
+
+.search-form.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.btn {
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #007bff;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.tab-button');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs and forms
+            document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.search-form').forEach(f => f.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding form
+            this.classList.add('active');
+            const targetId = this.getAttribute('data-target');
+            document.getElementById(targetId).classList.add('active');
+        });
+    });
+});
+</script>

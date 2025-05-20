@@ -1,0 +1,83 @@
+<!-- templates/lookup_interface.html -->
+{% extends "base.html" %} <!-- If you have a base template -->
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Database Lookup System</h2>
+    
+    <!-- Display messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="get" action="{% url 'search:lookup_search' %}">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="model_type">Select Model Type:</label>
+                    <select class="form-control" id="model_type" name="model_type" required>
+                        <option value="">-- Select --</option>
+                        <option value="asset" {% if model_type == 'asset' %}selected{% endif %}>Asset</option>
+                        <option value="vendor" {% if model_type == 'vendor' %}selected{% endif %}>Vendor</option>
+                        <option value="warehouse" {% if model_type == 'warehouse' %}selected{% endif %}>Warehouse</option>
+                    </select>
+                </div>
+                
+                {% if model_type %}
+                <div class="form-group">
+                    <label for="search_field">Search By:</label>
+                    <select class="form-control" id="search_field" name="search_field" required>
+                        <option value="">-- Select --</option>
+                        {% for field in valid_fields %}
+                        <option value="{{ field }}" {% if search_field == field %}selected{% endif %}>
+                            {{ field|title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="search_value">Search Value:</label>
+                    <input type="text" class="form-control" id="search_value" 
+                           name="search_value" value="{{ search_value|default:'' }}" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Search</button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+    
+<!-- In your template -->
+{% if record %}
+<div class="card">
+    <div class="card-header">
+        <h4>Record Details</h4>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <tbody>
+                {% for field, value in record.items %}
+                <tr>
+                    <th>{{ field|title }}</th>
+                    <td>{{ value|default:"N/A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+</div>
+
+<script>
+// Simple client-side interactivity
+document.getElementById('model_type').addEventListener('change', function() {
+    this.form.submit();
+});
+</script>
+{% endblock %}

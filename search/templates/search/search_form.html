@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form method="get" action="{% url 'search:unified_search' %}" class="form-inline my-2 my-lg-0">
+    <select name="app" class="form-control mr-sm-2" onchange="updateFields(this.value)">
+        <option value="">Select App</option>
+        <option value="employee_management">Employee Management</option>
+        <option value="asset_management">Asset Management</option>
+        <option value="vendor_escalation_management">Vendor Escalation Management</option>
+        <option value="warehouse_management">Warehouse Management</option>
+    </select>
+    <select name="field" class="form-control mr-sm-2" id="field-select">
+        <option value="">Select Field</option>
+    </select>
+    <input class="form-control mr-sm-2" type="search" placeholder="Search" name="query" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+</form>
+
+<script>
+    const fieldOptions = {
+        'employee_management': [
+            {'value': 'region', 'text': 'Region'},
+            {'value': 'emp_number', 'text': 'Employee Number'},
+            {'value': 'date_joined', 'text': 'Date Joined'},
+            {'value': 'city', 'text': 'City'},
+        ],
+        'asset_management': [
+            {'value': 'date_assigned', 'text': 'Date Assigned'},
+            {'value': 'serial', 'text': 'Serial'},
+            {'value': 'aims_tag', 'text': 'AIMS Tag'},
+            {'value': 'lcd_serial', 'text': 'LCD Serial'},
+            {'value': 'cpu_serial', 'text': 'CPU Serial'},
+        ],
+        'vendor_escalation_management': [
+            {'value': 'date_created', 'text': 'Date Created'},
+            {'value': 'vendor_email', 'text': 'Vendor Email'},
+            {'value': 'serial', 'text': 'Serial'},
+            {'value': 'aims_tag', 'text': 'AIMS Tag'},
+            {'value': 'lcd_serial', 'text': 'LCD Serial'},
+            {'value': 'cpu_serial', 'text': 'CPU Serial'},
+        ],
+        'warehouse_management': [
+            {'value': 'date_assigned', 'text': 'Date Assigned'},
+            {'value': 'serial', 'text': 'Serial'},
+            {'value': 'aims_tag', 'text': 'AIMS Tag'},
+            {'value': 'lcd_serial', 'text': 'LCD Serial'},
+            {'value': 'cpu_serial', 'text': 'CPU Serial'},
+        ],
+    };
+
+document.getElementById('app-select').addEventListener('change', function() {
+        const app = this.value;
+        const fieldSelect = document.getElementById('field-select');
+        fieldSelect.innerHTML = '<option value="">Select Field</option>';
+        if (fieldOptions[app]) {
+            fieldOptions[app].forEach(function(field) {
+                const option = document.createElement('option');
+                option.value = field.value;
+                option.text = field.text;
+                fieldSelect.add(option);
+            });
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+<!-- templates/reports/report_view.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report View</title>
+</head>
+<body>
+
+<h1>Report: {{ report_type|title }}</h1>
+
+<form method="get" action="{% url 'report_view' %}">
+    {{ form.as_p }}
+    <button type="submit" name="action" value="view">View Report</button>
+    <button type="submit" name="action" value="export">Export Report</button>
+</form>
+
+{% if report_data %}
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in report_data %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No data available.</p>
+{% endif %}
+
+</body>
+</html>

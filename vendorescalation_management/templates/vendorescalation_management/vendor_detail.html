@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Vendor Escalation Details</h5>
+            <div>
+                {% if perms.vendorescalation_management.change_vendorescalation %}
+                <a href="{% url 'vendorescalation_management:vendor_update' vendor.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                {% endif %}
+                {% if perms.vendorescalation_management.delete_vendorescalation %}
+                <a href="{% url 'vendorescalation_management:vendor_delete' vendor.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6>Vendor Information</h6>
+                    <p><strong>Vendor Name:</strong> {{ vendor.vendor_name }}</p>
+                    <p><strong>Vendor Email:</strong> {{ vendor.vendor_email }}</p>
+                    <p><strong>Date Created:</strong> {{ vendor.date_created|date:"Y-m-d" }}</p>
+                    <p><strong>Status:</strong> {{ vendor.get_status_display }}</p>
+                </div>
+
+                <div class="col-md-6">
+                    <h6>Employee Information</h6>
+                    <p><strong>Employee:</strong>
+                        {% if vendor.employee %}
+                            {{ vendor.employee.name }} ({{ vendor.employee.emp_number }})
+                        {% else %}
+                            Not assigned
+                        {% endif %}
+                    </p>
+                    <p><strong>POC Name:</strong> {{ vendor.poc_name }}</p>
+                    <p><strong>POC Cell:</strong> {{ vendor.poc_cell }}</p>
+                    <p><strong>IT Email:</strong> {{ vendor.it_email }}</p>
+                </div>
+            </div>
+
+            <!-- Device Information -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h6>Device Information</h6>
+                    <p><strong>Device Type:</strong>
+                        {% if vendor.device_type %}
+                            {{ vendor.device_type.name }}
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </p>
+                    <p><strong>Brand:</strong> {{ vendor.brand|default:"Not specified" }}</p>
+                    <p><strong>Model:</strong> {{ vendor.model|default:"Not specified" }}</p>
+                    <p><strong>Serial Number:</strong> {{ vendor.serial_number|default:"Not specified" }}</p>
+                    <p><strong>AIMS Tag:</strong> {{ vendor.aims_tag|default:"Not specified" }}</p>
+                </div>
+            </div>
+
+            <!-- Issue Details -->
+            <div class="mb-4">
+                <h6>Issue Details</h6>
+                <div class="border p-3">
+                    {{ vendor.issue_details|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Resolution Information (if resolved) -->
+            {% if vendor.status == 'RESOLVED' %}
+            <div class="mb-4">
+                <h6>Resolution Details</h6>
+                <p><strong>Closure Date:</strong> {{ vendor.closure_date|date:"Y-m-d" }}</p>
+                <div class="border p-3">
+                    {{ vendor.closure_remarks|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card-footer text-end">
+            <a href="{% url 'vendorescalation_management:vendor_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Vendor List
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="my-4">User Activity Dashboard</h2>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Activity</th>
+                    <th>URL</th>
+                    <th>Time</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in activities %}
+                <tr>
+                    <td>{{ activity.user.username }}</td>
+                    <td>{{ activity.activity_type }}</td>
+                    <td>{{ activity.url|truncatechars:50 }}</td>
+                    <td>{{ activity.timestamp|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" data-bs-toggle="collapse" 
+                                data-bs-target="#details-{{ activity.id }}">
+                            View Details
+                        </button>
+                        <div id="details-{{ activity.id }}" class="collapse">
+                            <pre class="mt-2">{{ activity.details|pprint }}</pre>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No activity records found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% debug %}  <!-- Add this tag to see template context -->
+{{ locations|pprint }}  <!-- Show raw queryset -->

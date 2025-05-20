@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .form-control, .form-select { background: #2c3e50; color: #e0e0e0; border-color: #4b6cb7; }
+    .form-control:focus { background: #34495e; color: #ffffff; }
+    .btn-primary { box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4" data-aos="fade-up">
+    <h2 class="text-gray-900">Configure Poste.io</h2>
+    <div class="card" data-aos="zoom-in">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="api_token" class="form-label text-gray-900">API Token</label>
+                    <input type="password" name="api_token" value="{{ form.api_token.value|default:'' }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="domain" class="form-label text-gray-900">Domain</label>
+                    <input type="text" name="domain" value="{{ form.domain.value|default:'yourcompany.com' }}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="smtp_host" class="form-label text-gray-900">SMTP Host</label>
+                    <input type="text" name="smtp_host" value="{{ form.smtp_host.value|default:'mail.yourcompany.com' }}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="smtp_port" class="form-label text-gray-900">SMTP Port</label>
+                    <input type="number" name="smtp_port" value="{{ form.smtp_port.value|default:587 }}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="smtp_username" class="form-label text-gray-900">SMTP Username</label>
+                    <input type="text" name="smtp_username" value="{{ form.smtp_username.value|default:'' }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="smtp_password" class="form-label text-gray-900">SMTP Password</label>
+                    <input type="password" name="smtp_password" value="{{ form.smtp_password.value|default:'' }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="smtp_use_tls" class="form-label text-gray-900">Use TLS</label>
+                    <input type="checkbox" name="smtp_use_tls" {% if form.smtp_use_tls.value %}checked{% endif %} class="form-check-input">
+                </div>
+                <div class="mb-3">
+                    <label for="imap_host" class="form-label text-gray-900">IMAP Host</label>
+                    <input type="text" name="imap_host" value="{{ form.imap_host.value|default:'mail.yourcompany.com' }}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="imap_port" class="form-label text-gray-900">IMAP Port</label>
+                    <input type="number" name="imap_port" value="{{ form.imap_port.value|default:993 }}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="imap_username" class="form-label text-gray-900">IMAP Username</label>
+                    <input type="text" name="imap_username" value="{{ form.imap_username.value|default:'' }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="imap_password" class="form-label text-gray-900">IMAP Password</label>
+                    <input type="password" name="imap_password" value="{{ form.imap_password.value|default:'' }}" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="default_from_email" class="form-label text-gray-900">Default From Email</label>
+                    <input type="email" name="default_from_email" value="{{ form.default_from_email.value|default:'no-reply@yourcompany.com' }}" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Configuration</button>
+                <a href="{% url 'custom_email_client:email_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% block extra_js %}
+<script>
+    AOS.init();
+</script>
+{% endblock %}
+{% endblock %}

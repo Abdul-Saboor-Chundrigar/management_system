@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Employee Details</h5>
+            <div>
+                <a href="{% url 'employee_management:employee_update' employee.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'employee_management:employee_delete' employee.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+              	<div class="col-md-6">
+                    <p><strong>Employee #:</strong> {{ employee.emp_number }}</p>
+                    <p><strong>Name:</strong> {{ employee.name }}</p>
+                    <p><strong>Alias:</strong> {{ employee.alias|default:"-" }}</p>
+                    <p><strong>Email:</strong> {{ employee.email }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Cell Phone:</strong> {{ employee.cell_phone }}</p>
+                    <p><strong>Region:</strong> {{ employee.region }}</p>
+                    <p><strong>City:</strong> {{ employee.city }}</p>
+                    <p><strong>Location:</strong> {{ employee.location }}</p>
+                </div>
+                <div class="col-12">
+                    <p><strong>Date Joined:</strong> {{ employee.date_joined }}</p>
+                    <p><strong>Comments:</strong> {{ employee.comments|linebreaks|default:"-" }}</p>
+                </div>
+            </div>
+	 </div>
+  
+
+   <div class="mt-4">
+        <a href="{% url 'employee_management:employee_list' %}" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+{% endblock %}

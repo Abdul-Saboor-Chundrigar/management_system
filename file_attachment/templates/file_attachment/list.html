@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Attachments</h2>
+    <h3>Search Employees</h3>
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" name="search_query" id="search_query" class="form-control" value="{{ search_query }}" placeholder="Search by emp_number or name">
+            </div>
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-primary">Find to Upload</button>
+            </div>
+        </div>
+    </form>
+    {% if search_results %}
+        <h4>Search Results</h4>
+        <table class="table table-striped mb-4">
+            <thead>
+                <tr>
+                    <th>Emp Number</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in search_results %}
+                    <tr>
+                        <td>{{ employee.emp_number }}</td>
+                        <td>{{ employee.name }}</td>
+                        <td>{{ employee.email|default:'N/A' }}</td>
+                        <td>
+                            <a href="{% url 'file_attachment:add_attachment' employee.emp_number %}" class="btn btn-sm btn-primary">Add Attachment</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif search_query %}
+        <p>No employees found for "{{ search_query }}".</p>
+    {% endif %}
+
+    <h3>Search File Attachments</h3>
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" name="attachment_query" id="attachment_query" class="form-control" value="{{ attachment_query }}" placeholder="Search by filename, description, or emp_number">
+            </div>
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-primary">Search File Attachment</button>
+            </div>
+        </div>
+    </form>
+    {% if attachment_query and not record_details %}
+        <p>No attachments found for "{{ attachment_query }}".</p>
+    {% endif %}
+
+    <h3>Existing Attachments</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Filename</th>
+                <th>Description</th>
+                <th>Employee</th>
+                <th>App Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detail in record_details %}
+                <tr>
+                    <td>{{ detail.attachment.id }}</td>
+                    <td>{{ detail.attachment.filename }}</td>
+                    <td>{{ detail.attachment.description }}</td>
+                    <td>
+                        {% if detail.employee %}
+                            {{ detail.employee.name }} ({{ detail.employee.emp_number }})
+                            <br>Email: {{ detail.employee.email|default:'N/A' }}
+                        {% else %}
+                            None
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if detail.employee_data %}
+                            <strong>employee_management:</strong>
+                            {% for emp in detail.employee_data %}
+                                <ul>
+                                    {% for field_name, value in emp.items %}
+                                        <li>{{ field_name }}: {{ value|default:'N/A' }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        {% endif %}
+                        {% if detail.asset_data %}
+                            <strong>asset_management:</strong>
+                            {% for asset in detail.asset_data %}
+                                <ul>
+                                    {% for field_name, value in asset.items %}
+                                        <li>{{ field_name }}: {{ value|default:'N/A' }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        {% endif %}
+                        {% if detail.warehouse_data %}
+                            <strong>warehouse_management:</strong>
+                            {% for wh in detail.warehouse_data %}
+                                <ul>
+                                    {% for field_name, value in wh.items %}
+                                        <li>{{ field_name }}: {{ value|default:'N/A' }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        {% endif %}
+                        {% if detail.vendor_data %}
+                            <strong>vendorescalation_management:</strong>
+                            {% for vendor in detail.vendor_data %}
+                                <ul>
+                                    {% for field_name, value in vendor.items %}
+                                        <li>{{ field_name }}: {{ value|default:'N/A' }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'file_attachment:download_attachment' detail.attachment.id %}" class="btn btn-sm btn-success">Download</a>
+                        <a href="{% url 'file_attachment:edit_attachment' detail.attachment.id %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'file_attachment:delete_attachment' detail.attachment.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Email Logs</h2>
+    <h3>Search Logs by Date</h3>
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" name="date_query" id="date_query" class="form-control" value="{{ date_query }}" placeholder="YYYY-MM-DD">
+            </div>
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-primary">Search Logs</button>
+            </div>
+        </div>
+    </form>
+    {% if date_query and not logs %}
+        <p>No logs found for "{{ date_query }}".</p>
+    {% endif %}
+
+    <h3>Email Log Entries</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Recipient</th>
+                <th>Subject</th>
+                <th>App Name</th>
+                <th>Record ID</th>
+                <th>Sent At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.recipient }}</td>
+                    <td>{{ log.subject }}</td>
+                    <td>{{ log.app_name }}</td>
+                    <td>{{ log.record_id }}</td>
+                    <td>{{ log.sent_at }}</td>
+                    <td>
+                        <a href="{% url 'email_management:delete_email_log' log.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

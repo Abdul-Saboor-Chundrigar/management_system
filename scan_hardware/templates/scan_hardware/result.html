@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-gray-100 p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8">
+    <h1 class="text-3xl font-bold mb-6 text-blue-900">Scan Results</h1>
+    <div class="mb-6">
+        <p class="text-blue-900"><strong>NetBIOS Name:</strong> {{ netbios_name|default:"N/A" }}</p>
+        <p class="text-blue-900"><strong>IPv4 Address:</strong> {{ ipv4_address }}</p>
+    </div>
+    <h2 class="text-xl font-semibold mb-4 text-blue-900">Hardware Details</h2>
+    <ul class="list-disc pl-6 mb-6 text-blue-900">
+        <li><strong>RAM:</strong> {{ hardware_details.ram }}</li>
+        <li><strong>Drives:</strong>
+            <ul class="list-circle pl-6">
+                {% for drive in hardware_details.drives %}
+                    <li>{{ drive.model }} ({{ drive.size }}, {{ drive.type }})</li>
+                {% endfor %}
+            </ul>
+        </li>
+        <li><strong>Processor:</strong> {{ hardware_details.processor.name }} ({{ hardware_details.processor.speed}}, {{ hardware_details.processor.cores }} cores, {{ hardware_details.processor.threads }} threads)</li>
+        <li><strong>Motherboard:</strong> {{ hardware_details.motherboard.manufacturer }} {{ hardware_details.motherboard.product }} (Serial: {{ hardware_details.motherboard.serial }})</li>
+    </ul>
+    <h2 class="text-xl font-semibold mb-4 text-blue-900">Software Details</h2>
+    <p class="text-blue-900 mb-4"><strong>Operating System:</strong> {{ software_details.os.name }} (Version: {{ software_details.os.version }}, Build: {{ software_details.os.build }}, {{ software_details.os.architecture }})</p>
+    <h3 class="text-lg font-medium mb-3 text-blue-900">Installed Software</h3>
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-gray-200">
+            <thead>
+                <tr class="bg-blue-50">
+                    <th class="border border-gray-200 p-3 text-left text-blue-900 font-semibold">Name</th>
+                    <th class="border border-gray-200 p-3 text-left text-blue-900 font-semibold">Version</th>
+                    <th class="border border-gray-200 p-3 text-left text-blue-900 font-semibold">Vendor</th>
+                    <th class="border border-gray-200 p-3 text-left text-blue-900 font-semibold">Install Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for software in software_details.installed_software %}
+                    <tr class="hover:bg-gray-50 transition duration-150">
+                        <td class="border border-gray-200 p-3 text-blue-900">{{ software.name }}</td>
+                        <td class="border border-gray-200 p-3 text-blue-900">{{ software.version }}</td>
+                        <td class="border border-gray-200 p-3 text-blue-900">{{ software.vendor }}</td>
+                        <td class="border border-gray-200 p-3 text-blue-900">{{ software.install_date }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <form method="post" class="mt-8 flex justify-end space-x-4">
+        {% csrf_token %}
+        <button type="submit" name="action" value="save" class="block visible bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 transition duration-200 shadow-md">Save</button>
+        <button type="submit" name="action" value="cancel" class="block visible bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-lg hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 transition duration-200 shadow-md">Cancel</button>
+    </form>
+</div>
+{% endblock %}

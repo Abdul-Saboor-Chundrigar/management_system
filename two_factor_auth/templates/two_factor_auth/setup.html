@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Set Up 2FA</h2>
+<p>Scan this QR code with your authenticator app:</p>
+<img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+<p>Or enter this secret key manually: <strong>{{ secret_key }}</strong></p>
+<a href="{% url 'verify_2fa' %}" class="btn btn-primary">I've Set Up My Authenticator</a>
+{% endblock %}

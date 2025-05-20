@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Delete Email Log</h2>
+    <p>Are you sure you want to delete the email log for "{{ log.recipient }}" sent at "{{ log.sent_at }}"?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+        <a href="{% url 'email_management:email_log_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}
