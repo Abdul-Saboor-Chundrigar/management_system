@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from django.core.management.utils import get_random_secret_key
+import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 #BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,10 +13,11 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', get_random_secret_key())
 
 # Security settings
 DEBUG = 'False'
+ALLOWED_HOSTS = ['*']  # or ['your-app.up.railway.app']
 #ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'itsupportserver.internal', '192.168.88.196']
 #DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,itsupportserver.internal,192.168.88.196').split(',')
+#ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,itsupportserver.internal,192.168.88.196').split(',')
 #CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost,http://127.0.0.1,http://192.168.88.196').split(',')
 
 # Application definition
@@ -100,6 +103,10 @@ WSGI_APPLICATION = 'management_system.wsgi.application'
 
 # Database
 DATABASES = {
+
+    'default': dj_database_url.config(default=os.getenv("DATABASE_URL")),
+
+
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
         'NAME': os.getenv('DB_NAME', 'management_system'),
